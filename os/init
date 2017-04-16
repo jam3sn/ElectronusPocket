@@ -28,9 +28,16 @@ sleep(1)
 user    = core.loadConfig(configDir..'user')
 system  = core.loadConfig(configDir..'system')
 
-
 -- Setup
 rednet.open(system.modem)
+
+local server, packet = core.sendBroadcastQuery("DQ", "query", "67")
+if packet == nil then
+    gui.output(3, 1, 'Error connecting to server')
+    sleep(2)
+elseif packet.type == "DR" then
+    system.server = server
+end
 
 system.ip   = os.getComputerID
 system.name = os.getComputerLabel

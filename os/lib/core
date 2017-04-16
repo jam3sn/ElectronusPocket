@@ -39,3 +39,59 @@ end
 function launch(program)
 	shell.run('/app/'..program)
 end
+
+
+-- Rednet broadcast communication
+function sendBroadcastQuery(type, query, port)
+	rednet.broadcast({
+		type 	= type,
+		payload = query
+	}, port)
+
+	local id, packet, rport = rednet.receive(5)
+
+	if rport == port then
+		return id, packet
+	else
+		return false
+	end
+end
+
+-- Rednet send communication
+function sendQuery(id, type1, query, port)
+	rednet.send(id, {
+		type 	= type1,
+		payload = query
+	}, port)
+
+	local id, packet, rport = rednet.receive(5)
+
+	if rport == port then
+		return id, packet
+	else
+		return false
+	end
+end
+
+-- Hash
+function hash(msg,salt,bool)
+  if not bool then
+        for i = 1, 10 do
+          msg = hash(msg,salt or "",true)
+        end
+  end
+  local num = ""
+  local salt = salt ~= nil and salt..msg or msg
+  for i = 1, #salt do
+        local let = salt:sub(i,i):byte()
+        num = let <= 9  and num.."99"..let or let<=99 and num.."9"..let or num..let
+  end
+  math.randomseed(tonumber(num))
+  local hashed = ""
+  for i = 1, 250 do
+        hashed = hashed..string.char(math.random(32,127))
+        hashed = hashed:gsub('%W','')
+  end
+  hashed = string.sub(hashed, 1, 128)
+  return hashed
+end

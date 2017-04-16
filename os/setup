@@ -59,7 +59,43 @@ function signIn()
     gui.input(10, 11, colors.blue)
 
     gui.button(20, 17, colors.white, colors.blue, 'Back')
-    gui.button(17, 19, colors.white, colors.blue, 'Sign in')
+
+    local username = startInput(8)
+    local password = startPassInput(11)
+
+    if password ~= '' then
+        gui.button(17, 19, colors.white, colors.blue, 'Sign in')
+    else
+        displayError(16, 'Invlaid password')
+        password = startPassInput(11)
+    end
+
+
+    while true do
+        local event, term, x, y = os.pullEvent()
+
+    	if event == "mouse_click" then
+            -- Create account button
+            if x >= 17 and x <= 25 and y == 19 then
+                local server, packet = core.sendQuery(tonumber(system.server), "AT", {["user"] = username, ["password"] = password}, "113")
+                if packet == nil then
+                    displayError(16, 'Error connecting to server')
+
+                    if packet.payload == "fail" then
+                        displayError(16, 'Incorrect Username / Password')
+                    elseif packet.type == "UA" then
+                        user.username = username
+                        user.token    = packet.payload
+                        core.saveUserConfig(user)
+                        stepFour()
+                        break
+                    else
+                        displayError(16, 'Server Error')
+                    end
+                end
+            end
+        end
+    end
 end
 
 function signUp()
@@ -88,17 +124,43 @@ function signUp()
     print('Password')
 
     gui.button(20, 17, colors.white, colors.blue, 'Back')
-    gui.button(10, 19, colors.white, colors.blue, 'Create Account')
+
+    local username = startInput(8)
+    local password = startPassInput(11)
+    local cpassword = startPassInput(14)
+
+    if password == cpassword and password ~= '' then
+        gui.button(10, 19, colors.white, colors.blue, 'Create Account')
+        password = core.hash(password, 'eOQz3vcOEUaK0O', false)
+    else
+        displayError(16, 'Passwords don\'t match')
+        password = startPassInput(11)
+        cpassword = startPassInput(14)
+    end
 
 
     while true do
         local event, term, x, y = os.pullEvent()
 
     	if event == "mouse_click" then
-            -- Username
-            if x >= 10 and x <= 25 and y == 8 then
-                term.setCursorPos(11, 8)
-                local username = io.read()
+            -- Create account button
+            if x >= 10 and x <= 25 and y == 19 then
+                local server, packet = core.sendQuery(tonumber(system.server), "UA", {["user"] = username, ["password"] = password}, "113")
+                if packet == nil then
+                    displayError(16, 'Error connecting to server')
+
+                    if packet.payload == "fail" then
+                        displayError(16, 'Incorrect Username / Password')
+                    elseif packet.type == "UR" then
+                        user.username = username
+                        user.token    = packet.payload
+                        core.saveUserConfig(user)
+                        stepFour()
+                        break
+                    else
+                        displayError(16, 'Server Error')
+                    end
+                end
             end
         end
     end
@@ -130,6 +192,9 @@ function skip()
             if x >= 11 and x <= 25 and y == 10 then
                 user.username = startInput(10)
                 gui.button(10, 19, colors.white, colors.blue, 'Create Account')
+            elseif x >= 10 and x <= 25 and y == 19 then
+                core.saveUserConfig(user)
+                stepFour()
                 break
             end
         end
@@ -154,12 +219,24 @@ end
 function startInput(y)
     term.setCursorPos(11, y)
     gui.outputColor(colors.lightGray, colors.blue)
-    return io.read()
+    return read()
+end
+
+
+function startPassInput(y)
+    term.setCursorPos(11, y)
+    gui.outputColor(colors.lightGray, colors.blue)
+    return read("*")
+end
+
+function displayError(y, error)
+    term.setCursorPos(1, y)
+    gui.outputColor(colors.blue, colors.red)
+    print(error)
 end
 
 -- Program
 step = 0
-
 stepOne()
 
 while true do
@@ -181,13 +258,10 @@ while true do
         -- Step 3
         elseif x >= 20 and x <= 25 and y == 17 and step >= 3 and step < 4 then
             stepTwo() -- Go back
-        elseif x >= 10 and x <= 25 and y == 19 then
-            core.saveUserConfig(user)
-            stepFour()
 
         -- Step 4
         elseif step == 4 then
-            osRun('home')
+            core.osRun('home')
         end
     end
 end
