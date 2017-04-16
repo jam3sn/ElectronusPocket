@@ -1,4 +1,6 @@
 {
-    modem = "back",
-    osVersion = 1.0
+  osVersion = 1,
+  modem = "back",
+  ip = 46,
+  server = 51,
 }

@@ -9,18 +9,6 @@ function init(bgColor, textColor)
 	term.clear()
 end
 
-
--- Create window
-function window(x, y, w, h, bgColor, textColor)
-	local win = window.create(term.current(), x, y, w, h)
-	win.setBackgroundColor(bgColor)
-	win.setTextColor(textColor)
-	win.setCursorPos(1,1)
-	win.clear()
-	return win
-end
-
-
 -- Print a row
 function row(y, height, color)
 	paintutils.drawFilledBox(1, y, 26, height, color)
@@ -37,6 +25,16 @@ end
 function output(x, y, string)
 	term.setCursorPos(x, y)
 	write(string)
+end
+
+-- Center text
+function outputCenter(y, string)
+	local len = string.len(string)
+	local w, h = term.getSize()
+	if len < 26 then
+		local x = math.ceil((w / 2) - (len / 2))
+		output(x, y, string)
+	end
 end
 
 

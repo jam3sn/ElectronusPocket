@@ -65,6 +65,7 @@ function signIn()
 
     if password ~= '' then
         gui.button(17, 19, colors.white, colors.blue, 'Sign in')
+        password = core.hash(password, 'eOQz3vcOEUaK0O', false)
     else
         displayError(16, 'Invlaid password')
         password = startPassInput(11)
@@ -80,8 +81,10 @@ function signIn()
                 local server, packet = core.sendQuery(tonumber(system.server), "AT", {["user"] = username, ["password"] = password}, "113")
                 if packet == nil then
                     displayError(16, 'Error connecting to server')
-
-                    if packet.payload == "fail" then
+                else
+                    if packet.payload == nil then
+                        displayError(16, 'Server Error')
+                    elseif packet.payload == "fail" then
                         displayError(16, 'Incorrect Username / Password')
                     elseif packet.type == "UA" then
                         user.username = username
@@ -148,7 +151,7 @@ function signUp()
                 local server, packet = core.sendQuery(tonumber(system.server), "UA", {["user"] = username, ["password"] = password}, "113")
                 if packet == nil then
                     displayError(16, 'Error connecting to server')
-
+                else
                     if packet.payload == "fail" then
                         displayError(16, 'Incorrect Username / Password')
                     elseif packet.type == "UR" then

@@ -1,9 +1,11 @@
 {
+  username = "spook",
   colors = {
-    homeHigh = 128,
+    homeHigh = 256,
     homeText = 1,
-    homeBg = 512,
-    sysBg = 128,
-    sysText = 1,
+    homeBg = 2048,
+    sysBg = 1,
+    sysText = 2048,
   },
+  token = "Wg7U34mrYBbcUI7zEYMjKw6T2JKPkjPzMM1htfMMxjz4MdgDSszQLYvJJNhuxC8EEtG1RBHBQ0NfvqyyZ4gqi5R6JV39lAcV4eQFvWyeggD9GFZLUJK1mAz1J0Dhgtbj",
 }

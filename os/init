@@ -1,32 +1,25 @@
 -- Electronus Mobile --
 -- Copyright DKE Domain 2017--
 
--- Setup OS Vars
-osDir = '/os/'
-appDir = '/app/'
-libDir = osDir..'lib/'
-configDir = osDir..'config/'
-resourcesDir = osDir..'resources/'
-
-
 -- Load OS APIs
-os.loadAPI(libDir..'/core')
-os.loadAPI(libDir..'/gui')
+os.loadAPI('/os/lib/core')
+os.loadAPI(core.libDir..'/gui')
 
 
 -- Display start scren
 term.setBackgroundColor(colors.white)
 term.setTextColor(colors.gray)
 term.clear()
-gui.image(5, 7, resourcesDir..'em-logo')
+gui.image(5, 7, core.resourcesDir..'em-logo')
 term.setBackgroundColor(colors.white)
 gui.output(3, 19, 'Electronus Mobile v1.0')
 sleep(1)
 
 
--- Load configs
-user    = core.loadConfig(configDir..'user')
-system  = core.loadConfig(configDir..'system')
+--Load configs
+user    = core.loadConfig(core.configDir..'user')
+system  = core.loadConfig(core.configDir..'system')
+
 
 -- Setup
 rednet.open(system.modem)
@@ -39,13 +32,15 @@ elseif packet.type == "DR" then
     system.server = server
 end
 
-system.ip   = os.getComputerID
-system.name = os.getComputerLabel
+system.ip   = os.getComputerID()
+system.name = os.getComputerLabel()
+
+core.saveConfig(system, core.configDir..'system')
 
 
 -- Start enviroment
-if user.username ~= nil then
-    shell.run(osDir..'home')
+if user ~= nil and user.username ~= nil then
+    shell.run(core.osDir..'home')
 else
-    shell.run(osDir..'setup')
+    shell.run(core.osDir..'setup')
 end

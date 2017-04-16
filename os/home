@@ -2,27 +2,17 @@
 -- Copyright DKE Domain 2017--
 
 -- Startup --
-ipLen 	= string.len(ip)
+user    = core.loadConfig(core.configDir..'user')
+system  = core.loadConfig(core.configDir..'system')
+apps  = core.loadConfig(core.configDir..'apps')
 
--- Menu Table --
-local menu = {
-	[1] = {
-		name = "Settings",
-		path = "./settings"
-	},
-	[2] = {
-		name = "Power",
-		["children"] = {
-			[1] = {text = "Log Off"},
-			[2] = {text = "Shutdown"},
-			[3] = {text = "Reboot"}
-		}
-	}
-}
-
+ipLen = string.len(system.ip)
+gui.init(user.colors.homeBg, user.colors.homeText)
+run = {}
 
 -- Functions --
 
+-- Gets real time from server
 function getTime()
 	ENTime = "00:00"
 	-- ENTime = http.get("http://www.dkedomain.com/srvtime.php")
@@ -30,58 +20,76 @@ function getTime()
 	write(ENTime)
 end
 
--- Top toolbar
-function toolbar()
-	paintutils.drawLine(0, 1, 26, 1, colorB)
-	term.setTextColor(colorT)
+-- Sytem UI (Toolbar and home button)
+function systemUI()
+	paintutils.drawLine(1, 1, 26, 1, user.colors.sysBg)
+	term.setTextColor(user.colors.sysText)
 
 	term.setCursorPos(1, 1)
 	write(user.username.." ")
 
-	term.setCursorPos(20-ipLen, 1)
-	write("#"..ip.." ")
-
-	term.setCursorPos(22, 1)
-	getTime()
+	term.setCursorPos(26-ipLen, 1)
+	write("#"..system.ip.." ")
 end
 
-function homeButton()
-	paintutils.drawLine(0, 20, 26, 20, colorB)
-	term.setTextColor(colorT)
+-- Draw the menu list
+function listApps()
+	local linePos = 3
+	run = {}
 
-	term.setCursorPos(13,20)
-	write("O")
-
-	term.setCursorPos(24,20)
-	write("R")
-end
-
-function menuDraw()
-	local drawLine = 0
-	local i = 1
-	local linePos = 2
-
-	term.setTextColor(colorH)
-	term.setCursorPos(2, 3)
-	write("E")
-	term.setTextColor(colorT)
-
-	lineTotal = table.getn(menu)
-
-	for i=1, lineTotal do
-		paintutils.drawLine(1, linePos, 26, linePos, colorB)
+	for k, v in pairs(apps) do
+		paintutils.drawLine(1, linePos, 26, linePos, user.colors.homeBg)
 		linePos = linePos+1
-		paintutils.drawLine(1, linePos, 26, linePos, colorB)
+		paintutils.drawLine(1, linePos, 26, linePos, user.colors.homeBg)
 		term.setCursorPos(2, linePos)
-		write(menu[i].name)
+		term.setTextColor(user.colors.homeText)
+		gui.outputCenter(linePos, k)
+		run[linePos] = v
 		linePos = linePos + 1
-
-		drawLine = drawLine + 1
 	end
 end
 
--- Program --
+-- Show power options
+function powerMenu()
+	local win = window.create(term.current(), 3, 7, 22, 9)
+	local mainWin = term.redirect(win);
+	gui.init(user.colors.sysBg, user.colors.sysText)
 
+	gui.outputCenter(2, 'Settings')
+	gui.outputCenter(4, 'Shut Down')
+	gui.outputCenter(6, 'Restart')
+	gui.outputCenter(8, 'Lock')
+
+	while true do
+        local event, param, x, y = os.pullEvent()
+
+    	if event == "mouse_click" then
+            -- Close
+            if x >= 3 and x <= 24 and y >= 7 and y <= 16 then
+
+				if y == 8 then
+					shell.run('settings')
+				elseif y == 10 then
+					os.shutdown()
+				elseif y == 12 then
+					os.reboot()
+				elseif y == 14 then
+					shell.run('lock')
+				end
+
+			else
+				term.redirect(mainWin)
+				gui.init(user.colors.homeBg, user.colors.homeText)
+				systemUI()
+				listApps()
+				break
+            end
+        end
+    end
+end
+
+
+-- Program --
 local timer
 timer = os.startTimer(0)
 term.clear()
@@ -90,49 +98,42 @@ term.setCursorPos(0, 0)
 while true do
 --	readUserConf()
 
-	local event, p1, p2, p3 = os.pullEvent()
-	bgImage()
-	toolBar()
-	menuDraw()
-	homeButton()
+	local event, param, x, y = os.pullEvent()
+	systemUI()
+	listApps()
+
 	if event == "mouse_click" then
-		if p1 == 2 then
-			click(event, p1, p2, p3)
-			testWindow()
-		else
-			--UserMenu--
-			if p2 >= uml and p2 <= uml+userLen and p3 == 1 then
-				userMenuDraw()
-				uMenuDrawn = 1
-			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 3 then
-				--Add logout Function--
-				term.clear()
-				term.setCursorPos(1, 1)
-				print("Logged Out")
-				uMenuDrawn = 0
-			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 5 then
-				os.shutdown()
-			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 7 then
-				os.reboot()
-				--MainMenu--
-			elseif p2 >= 0 and p2 <= 3 and p3 == 1 then
-				mainMenuDraw()
-				mMenuDrawn = 1
-			elseif mMenuDrawn == 1 and p2 >= 1 and p2 <= 10 and p3 == 3 then
-				path = mainMenu[1].path
-				mMenuDrawn = 0
-				shell.run(path)
-				--DevButton--
-			elseif p2 == 4 and p3 ==1 then
-				shell.run("./desktop", user)
-			else
-				uMenuDrawn = 0
-				mMenuDrawn = 0
+		-- Power Menu (Click username)
+		if x >= 1 and x <= string.len(user.username) and y == 1 then
+			powerMenu()
+
+		-- Apps
+		elseif run[y] ~= nil then
+			paintutils.drawLine(1, 20, 26, 20, user.colors.sysBg)
+			term.setTextColor(colors.white)
+			term.setCursorPos(13, 20)
+			write('em')
+
+			local win = window.create(term.current(), 1, 2, 26, 18)
+			term.redirect(win)
+			shell.run(run[y])
+
+			while true do
+				local event, param, x, y = os.pullEvent()
+
+				if event == "mouse_click" then
+					if y == 20 and x >= 13 and x <= 14 then
+						shell.exit()
+						systemUI()
+						listApps()
+					end
+				end
 			end
 		end
+
 	end
 
-	if event == "timer" and p1 == timer then
+	if event == "timer" and param == timer then
 		timer = os.startTimer(30)
 	end
 end
