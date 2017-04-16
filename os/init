@@ -1,0 +1,44 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+-- Setup OS Vars
+osDir = '/os/'
+appDir = '/app/'
+libDir = osDir..'lib/'
+configDir = osDir..'config/'
+resourcesDir = osDir..'resources/'
+
+
+-- Load OS APIs
+os.loadAPI(libDir..'/core')
+os.loadAPI(libDir..'/gui')
+
+
+-- Display start scren
+term.setBackgroundColor(colors.white)
+term.setTextColor(colors.gray)
+term.clear()
+gui.image(5, 7, resourcesDir..'em-logo')
+term.setBackgroundColor(colors.white)
+gui.output(3, 19, 'Electronus Mobile v1.0')
+sleep(1)
+
+
+-- Load configs
+user    = core.loadConfig(configDir..'user')
+system  = core.loadConfig(configDir..'system')
+
+
+-- Setup
+rednet.open(system.modem)
+
+system.ip   = os.getComputerID
+system.name = os.getComputerLabel
+
+
+-- Start enviroment
+if user.username ~= nil then
+    shell.run(osDir..'home')
+else
+    shell.run(osDir..'setup')
+end

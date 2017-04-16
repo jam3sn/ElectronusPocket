@@ -1,0 +1,138 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+-- Startup --
+ipLen 	= string.len(ip)
+
+-- Menu Table --
+local menu = {
+	[1] = {
+		name = "Settings",
+		path = "./settings"
+	},
+	[2] = {
+		name = "Power",
+		["children"] = {
+			[1] = {text = "Log Off"},
+			[2] = {text = "Shutdown"},
+			[3] = {text = "Reboot"}
+		}
+	}
+}
+
+
+-- Functions --
+
+function getTime()
+	ENTime = "00:00"
+	-- ENTime = http.get("http://www.dkedomain.com/srvtime.php")
+	-- ENTime = ENTime.readAll()
+	write(ENTime)
+end
+
+-- Top toolbar
+function toolbar()
+	paintutils.drawLine(0, 1, 26, 1, colorB)
+	term.setTextColor(colorT)
+
+	term.setCursorPos(1, 1)
+	write(user.username.." ")
+
+	term.setCursorPos(20-ipLen, 1)
+	write("#"..ip.." ")
+
+	term.setCursorPos(22, 1)
+	getTime()
+end
+
+function homeButton()
+	paintutils.drawLine(0, 20, 26, 20, colorB)
+	term.setTextColor(colorT)
+
+	term.setCursorPos(13,20)
+	write("O")
+
+	term.setCursorPos(24,20)
+	write("R")
+end
+
+function menuDraw()
+	local drawLine = 0
+	local i = 1
+	local linePos = 2
+
+	term.setTextColor(colorH)
+	term.setCursorPos(2, 3)
+	write("E")
+	term.setTextColor(colorT)
+
+	lineTotal = table.getn(menu)
+
+	for i=1, lineTotal do
+		paintutils.drawLine(1, linePos, 26, linePos, colorB)
+		linePos = linePos+1
+		paintutils.drawLine(1, linePos, 26, linePos, colorB)
+		term.setCursorPos(2, linePos)
+		write(menu[i].name)
+		linePos = linePos + 1
+
+		drawLine = drawLine + 1
+	end
+end
+
+-- Program --
+
+local timer
+timer = os.startTimer(0)
+term.clear()
+term.setCursorPos(0, 0)
+
+while true do
+--	readUserConf()
+
+	local event, p1, p2, p3 = os.pullEvent()
+	bgImage()
+	toolBar()
+	menuDraw()
+	homeButton()
+	if event == "mouse_click" then
+		if p1 == 2 then
+			click(event, p1, p2, p3)
+			testWindow()
+		else
+			--UserMenu--
+			if p2 >= uml and p2 <= uml+userLen and p3 == 1 then
+				userMenuDraw()
+				uMenuDrawn = 1
+			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 3 then
+				--Add logout Function--
+				term.clear()
+				term.setCursorPos(1, 1)
+				print("Logged Out")
+				uMenuDrawn = 0
+			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 5 then
+				os.shutdown()
+			elseif uMenuDrawn == 1 and p2 >= uml and p2 <= uml+userLen and p3 == 7 then
+				os.reboot()
+				--MainMenu--
+			elseif p2 >= 0 and p2 <= 3 and p3 == 1 then
+				mainMenuDraw()
+				mMenuDrawn = 1
+			elseif mMenuDrawn == 1 and p2 >= 1 and p2 <= 10 and p3 == 3 then
+				path = mainMenu[1].path
+				mMenuDrawn = 0
+				shell.run(path)
+				--DevButton--
+			elseif p2 == 4 and p3 ==1 then
+				shell.run("./desktop", user)
+			else
+				uMenuDrawn = 0
+				mMenuDrawn = 0
+			end
+		end
+	end
+
+	if event == "timer" and p1 == timer then
+		timer = os.startTimer(30)
+	end
+end

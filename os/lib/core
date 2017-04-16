@@ -1,0 +1,41 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+-- Load a config file
+function loadConfig(dir)
+	if not fs.exists(dir) then
+		return false
+	else
+		local file = fs.open(dir, 'r')
+		local data = file.readAll()
+		file.close()
+		return textutils.unserialize(data)
+	end
+end
+
+
+-- Save a config file
+function saveConfig(table, dir)
+	if not fs.exists(dir) then
+		return false
+	else
+		local file = fs.open(dir,"w")
+		file.write(textutils.serialize(table))
+		file.close()
+	end
+end
+
+-- Save the user config
+function saveUserConfig(user)
+	saveConfig(user, '/os/config/user')
+end
+
+-- Launch a OS program
+function osRun(program)
+	shell.run('/os/'..program)
+end
+
+-- Launch an app
+function launch(program)
+	shell.run('/app/'..program)
+end

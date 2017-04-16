@@ -1,0 +1,193 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+-- Functions
+
+function stepOne()
+    gui.init(colors.blue, colors.white)
+    step = 1
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Welcome')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Lets get you set up on your new device.')
+    print()
+    print('To take advantage of all the amazing features of Electronus Mobile, make sure you have an Electronus Server running.')
+    print()
+
+    gui.button(15, 19, colors.white, colors.blue, 'Lets go!')
+end
+
+function stepTwo()
+    gui.init(colors.blue, colors.white)
+    step = 2
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Your Account')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Creating a Electronus account allows you to tkae advantage of sync features, meaning you can have the same files across devices and computers. You can also restore a previous Pocket Computer.')
+
+    gui.button(17, 15, colors.white, colors.blue, 'Sign In')
+    gui.button(10, 17, colors.white, colors.blue, 'Create Account')
+    gui.button(20, 19, colors.blue, colors.white, 'Skip')
+end
+
+function signIn()
+    gui.init(colors.blue, colors.white)
+    step = 3.1
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Sign In')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Sign in to your Electronus account.')
+
+    term.setCursorPos(1, 8)
+    print('Username')
+    gui.input(10, 8, colors.blue)
+
+    term.setCursorPos(1, 11)
+    print('Password')
+    gui.input(10, 11, colors.blue)
+
+    gui.button(20, 17, colors.white, colors.blue, 'Back')
+    gui.button(17, 19, colors.white, colors.blue, 'Sign in')
+end
+
+function signUp()
+    gui.init(colors.blue, colors.white)
+    step = 3.1
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Create Account')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Create your Electronus account.')
+
+    term.setCursorPos(1, 8)
+    print('Username')
+    gui.input(10, 8, colors.blue)
+
+    term.setCursorPos(1, 11)
+    print('Password')
+    gui.input(10, 11, colors.blue)
+
+    term.setCursorPos(1, 14)
+    print('Confirm')
+    gui.input(10, 14, colors.blue)
+    print('Password')
+
+    gui.button(20, 17, colors.white, colors.blue, 'Back')
+    gui.button(10, 19, colors.white, colors.blue, 'Create Account')
+
+
+    while true do
+        local event, term, x, y = os.pullEvent()
+
+    	if event == "mouse_click" then
+            -- Username
+            if x >= 10 and x <= 25 and y == 8 then
+                term.setCursorPos(11, 8)
+                local username = io.read()
+            end
+        end
+    end
+end
+
+function skip()
+    gui.init(colors.blue, colors.white)
+    step = 3.3
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Create Account')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Create your local account. We advise you to go back and use an Electronus account.')
+
+    term.setCursorPos(1, 10)
+    print('Name')
+    gui.input(10, 10, colors.blue)
+
+    gui.button(20, 19, colors.white, colors.blue, 'Back')
+
+    while true do
+        local event, term, x, y = os.pullEvent()
+
+    	if event == "mouse_click" then
+            -- Username
+            if x >= 11 and x <= 25 and y == 10 then
+                user.username = startInput(10)
+                gui.button(10, 19, colors.white, colors.blue, 'Create Account')
+                break
+            end
+        end
+    end
+end
+
+function stepFour()
+    gui.init(colors.blue, colors.white)
+    step = 4
+    gui.row(1, 3, colors.white)
+    gui.outputColor(colors.white, colors.blue)
+    term.setCursorPos(1, 2)
+    print('Complete!')
+
+    term.setCursorPos(1, 5)
+    gui.outputColor(colors.blue, colors.white)
+    print('Hello ' ..user.username.. ', your device is all set up. Enjoy!')
+
+    gui.button(20, 19, colors.white, colors.blue, 'Home')
+end
+
+function startInput(y)
+    term.setCursorPos(11, y)
+    gui.outputColor(colors.lightGray, colors.blue)
+    return io.read()
+end
+
+-- Program
+step = 0
+
+stepOne()
+
+while true do
+    local event, term, x, y = os.pullEvent()
+
+	if event == "mouse_click" then
+        -- Step 1 button
+        if x >= 15 and x <= 25 and y == 19 and step == 1 then
+            stepTwo();
+
+        -- Step 2
+        elseif x >= 17 and x <= 25 and y == 15 and step == 2 then
+            signIn()
+        elseif x >= 10 and x <= 25 and y == 17 and step == 2 then
+            signUp()
+        elseif x >= 20 and x <= 25 and y == 19 and step == 2 then
+            skip()
+
+        -- Step 3
+        elseif x >= 20 and x <= 25 and y == 17 and step >= 3 and step < 4 then
+            stepTwo() -- Go back
+        elseif x >= 10 and x <= 25 and y == 19 then
+            core.saveUserConfig(user)
+            stepFour()
+
+        -- Step 4
+        elseif step == 4 then
+            osRun('home')
+        end
+    end
+end

@@ -1,0 +1,10 @@
+{
+  username = "spook",
+  colors = {
+    homeHigh = 128,
+    homeText = 1,
+    homeBg = 512,
+    sysBg = 128,
+    sysText = 1,
+  },
+}

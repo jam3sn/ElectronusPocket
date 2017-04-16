@@ -1,0 +1,62 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+-- Init screen
+function init(bgColor, textColor)
+	term.setBackgroundColor(bgColor)
+	term.setTextColor(textColor)
+	term.setCursorPos(1,1)
+	term.clear()
+end
+
+
+-- Create window
+function window(x, y, w, h, bgColor, textColor)
+	local win = window.create(term.current(), x, y, w, h)
+	win.setBackgroundColor(bgColor)
+	win.setTextColor(textColor)
+	win.setCursorPos(1,1)
+	win.clear()
+	return win
+end
+
+
+-- Print a row
+function row(y, height, color)
+	paintutils.drawFilledBox(1, y, 26, height, color)
+end
+
+
+-- Sets background and text color
+function outputColor(bgColor, textColor)
+	term.setBackgroundColor(bgColor)
+	term.setTextColor(textColor)
+end
+
+-- Write string at location
+function output(x, y, string)
+	term.setCursorPos(x, y)
+	write(string)
+end
+
+
+-- Display image
+function image(x, y, path)
+	local img = paintutils.loadImage(path)
+	paintutils.drawImage(img, x, y)
+end
+
+
+-- Button
+function button(x, y, bgColor, textColor, text)
+	width = string.len(text) + 1
+	paintutils.drawFilledBox(x, y, x+width, y, bgColor)
+	term.setTextColor(textColor)
+	output(x+1, y, text)
+end
+
+-- Text input
+function input(x, y)
+	paintutils.drawFilledBox(x, y, x+15, y, colors.lightGray)
+	term.setBackgroundColor(colors.blue)
+end

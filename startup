@@ -1,0 +1,17 @@
+-- Electronus Mobile --
+-- Copyright DKE Domain 2017--
+
+term.clear()
+term.setCursorPos(1,1)
+
+if not fs.exists('/os') then
+    print('OS dir not found...')
+    print()
+    print('Would you like to install Electronus Mobile? (Y / N)')
+else
+    if pocket then
+        shell.run('/os/init')
+    else
+        print('Electronus Mobile is only designed for Pocket Computers.')
+    end
+end

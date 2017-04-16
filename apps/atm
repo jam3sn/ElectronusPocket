@@ -1,0 +1,81 @@
+term.setBackgroundColor(colors.blue)
+term.clear()
+term.setCursorPos(1,1)
+term.setTextColor(colors.white)
+
+atmLocation = "Pocket"
+
+local locker = true
+local failed = true
+local attempted_login = true
+local serverId = 45
+rednet.open("back")
+
+function stamp()
+    print("==========================")
+    print("")
+    print("--[  Banker ]-[     ]")
+    term.setTextColor(colors.lime)
+    term.setCursorPos(5,3)
+    print("e")
+    term.setCursorPos(17,3)
+    print("ATM")
+    term.setTextColor(colors.white)
+    print("")
+    print("==========================")
+    term.setCursorPos(1,17)
+    print("==========================")
+    term.setCursorPos(1,19)
+    print(" eBanker Mobile - v1.0 ")
+end
+
+while locker do
+    attempt_login = true
+
+    term.clear()
+    term.setCursorPos(1,1)
+    stamp()
+    term.setCursorPos(1,6)
+    print("")
+    write("Bank Number: ")
+    inputBankNo = read()
+
+    write("Pin: ")
+    inputPinNo = read("*")
+
+    rednet.send(serverId, "mh7sDa92"..inputBankNo)
+    senderId, message, distance = rednet.receive(5)
+    pin = string.sub(message, 1, 4)
+    balance = string.sub(message, 5)
+
+    if inputPinNo == pin then
+        rednet.send(serverId, "m3wFk1qnAccess Granted")
+        failed = false
+        locker = false
+        print("Pin OK")
+        sleep(1)
+        term.clear()
+        term.setCursorPos(1,1)
+        stamp()
+        term.setCursorPos(1,6)
+        print("Account: ", inputBankNo)
+        print("Your Current Balance Is:")
+        term.setTextColor(colors.lime)
+        print("$", balance)
+        term.setTextColor(colors.white)
+        print("")
+        print("--[ E - Exit ]")
+        local event, param2 = os.pullEvent("char")
+        if param2 == "e" then
+            print()
+            print("Thank you for using eBanker")
+            sleep(2)
+            shell.run("/atm")
+            end
+        else
+            print("NOT AUTHORISED")
+            rednet.send(serverId, "m3wFk1qnAuthentication Failed!")
+            sleep(5)
+            shell.run("atm")
+        end
+    end
